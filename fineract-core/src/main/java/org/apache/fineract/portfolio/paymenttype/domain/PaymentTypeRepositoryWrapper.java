@@ -28,17 +28,30 @@ import org.springframework.stereotype.Service;
 public class PaymentTypeRepositoryWrapper {
 
     private final PaymentTypeRepository repository;
+    private final String region;
 
     public List<PaymentType> findAll() {
-        return this.repository.findAllByOrderByPositionAsc();
+        if (region == null) {
+            return this.repository.findAllByOrderByPositionAsc();
+        } else {
+            return this.repository.findAllInRegionByOrderByPositionAsc(region);
+        }
     }
 
     public List<PaymentType> findAllWithCodeName() {
-        return this.repository.findAllByCodeNameIsNotNullOrderByPositionAsc();
+        if (region == null) {
+            return this.repository.findAllByCodeNameIsNotNullOrderByPositionAsc();
+        } else {
+            return this.repository.findAllInRegionByCodeNameIsNotNullOrderByPositionAsc(region);
+        }
     }
 
     public PaymentType findOneWithNotFoundDetection(final Long id) {
-        return this.repository.findById(id).orElseThrow(() -> new PaymentTypeNotFoundException(id));
+        if (region == null) {
+            return this.repository.findById(id).orElseThrow(() -> new PaymentTypeNotFoundException(id));
+        } else {
+            return this.repository.findByIdAndRegion(id, region).orElseThrow(() -> new PaymentTypeNotFoundException(id));
+        }
     }
 
 }
